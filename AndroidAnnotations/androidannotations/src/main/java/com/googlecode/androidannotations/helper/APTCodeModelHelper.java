@@ -36,9 +36,7 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 
 import com.googlecode.androidannotations.processing.EBeanHolder;
-import com.googlecode.androidannotations.processing.EBeansHolder.Classes;
 import com.sun.codemodel.JBlock;
-import com.sun.codemodel.JCatchBlock;
 import com.sun.codemodel.JClass;
 import com.sun.codemodel.JClassAlreadyExistsException;
 import com.sun.codemodel.JCodeModel;
@@ -52,7 +50,6 @@ import com.sun.codemodel.JInvocation;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
 import com.sun.codemodel.JStatement;
-import com.sun.codemodel.JTryBlock;
 import com.sun.codemodel.JType;
 import com.sun.codemodel.JVar;
 
@@ -219,7 +216,7 @@ public class APTCodeModelHelper {
 	public JDefinedClass createDelegatingAnonymousRunnableClass(EBeanHolder holder, JMethod delegatedMethod) {
 
 		JCodeModel codeModel = holder.codeModel();
-		Classes classes = holder.classes();
+		// Classes classes = holder.classes();
 
 		JDefinedClass anonymousRunnableClass;
 		JBlock previousMethodBody = removeBody(delegatedMethod);
@@ -230,20 +227,23 @@ public class APTCodeModelHelper {
 		runMethod.annotate(Override.class);
 
 		JBlock runMethodBody = runMethod.body();
-		JTryBlock runTry = runMethodBody._try();
 
-		runTry.body().add(previousMethodBody);
-
-		JCatchBlock runCatch = runTry._catch(classes.RUNTIME_EXCEPTION);
-		JVar exceptionParam = runCatch.param("e");
-
-		JInvocation errorInvoke = classes.LOG.staticInvoke("e");
-
-		errorInvoke.arg(holder.generatedClass.name());
-		errorInvoke.arg("A runtime exception was thrown while executing code in a runnable");
-		errorInvoke.arg(exceptionParam);
-
-		runCatch.body().add(errorInvoke);
+		runMethodBody.add(previousMethodBody);
+		//
+		// JTryBlock runTry = runMethodBody._try();
+		//
+		// runTry.body().add(previousMethodBody);
+		//
+		// JCatchBlock runCatch = runTry._catch(classes.RUNTIME_EXCEPTION);
+		// JVar exceptionParam = runCatch.param("e");
+		//
+		// JInvocation errorInvoke = classes.LOG.staticInvoke("e");
+		//
+		// errorInvoke.arg(holder.generatedClass.name());
+		// errorInvoke.arg("A runtime exception was thrown while executing code in a runnable");
+		// errorInvoke.arg(exceptionParam);
+		//
+		// runCatch.body().add(errorInvoke);
 		return anonymousRunnableClass;
 	}
 
