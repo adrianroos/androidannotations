@@ -37,6 +37,7 @@ import com.sun.codemodel.JMod;
 public class AnimationStartProcessor implements DecoratingElementProcessor {
 
 	private final APTCodeModelHelper helper = new APTCodeModelHelper();
+	private final String VIEW_EXPR_VAR = "viewExpr_AnimationStart_";
 
 	public AnimationStartProcessor() {
 	}
@@ -59,28 +60,20 @@ public class AnimationStartProcessor implements DecoratingElementProcessor {
 			String viewExprStr = annotation.viewExpr();
 			JExpression viewExpr = JExpr.direct(viewExprStr);
 
-			if (holder.handler == null) {
-				JClass handlerClass = holder.classes().HANDLER;
-				holder.handler = holder.generatedClass.field(JMod.PRIVATE, handlerClass, "handler_", JExpr._new(handlerClass));
-			}
-
 			JDefinedClass outerRunnableClass = createOuterRunnableClass(holder, innerRunnableClass);
 
 			JClass viewCompatClass = codeModel.ref("android.support.v4.view.ViewCompat");
-			delegatingMethod.body().decl(JMod.FINAL, codeModel.ref("android.view.View"), "viewExpr", viewExpr);
+			delegatingMethod.body().decl(JMod.FINAL, codeModel.ref("android.view.View"), VIEW_EXPR_VAR, viewExpr);
 			delegatingMethod.body().staticInvoke(viewCompatClass, "postOnAnimation") //
-					.arg(JExpr.direct("viewExpr")) //
+					.arg(VIEW_EXPR_VAR) //
 					.arg(_new(outerRunnableClass));
 		}
 	}
 
 	private JDefinedClass createOuterRunnableClass(EBeanHolder holder, JDefinedClass inner) {
 		JCodeModel codeModel = holder.codeModel();
-		// Classes classes = holder.classes();
 
-		JDefinedClass anonymousRunnableClass;
-
-		anonymousRunnableClass = codeModel.anonymousClass(Runnable.class);
+		JDefinedClass anonymousRunnableClass = codeModel.anonymousClass(Runnable.class);
 
 		JMethod runMethod = anonymousRunnableClass.method(JMod.PUBLIC, codeModel.VOID, "run");
 		runMethod.annotate(Override.class);
@@ -88,7 +81,7 @@ public class AnimationStartProcessor implements DecoratingElementProcessor {
 		JBlock runMethodBody = runMethod.body();
 
 		JClass viewCompatClass = codeModel.ref("android.support.v4.view.ViewCompat");
-		runMethodBody.staticInvoke(viewCompatClass, "postOnAnimation").arg(JExpr.direct("viewExpr")).arg(_new(inner));
+		runMethodBody.staticInvoke(viewCompatClass, "postOnAnimation").arg(VIEW_EXPR_VAR).arg(_new(inner));
 
 		return anonymousRunnableClass;
 	}
