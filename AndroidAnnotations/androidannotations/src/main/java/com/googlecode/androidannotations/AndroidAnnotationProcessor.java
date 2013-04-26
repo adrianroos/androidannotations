@@ -35,6 +35,7 @@ import com.googlecode.androidannotations.annotationprocessor.SupportedAnnotation
 import com.googlecode.androidannotations.annotations.AfterInject;
 import com.googlecode.androidannotations.annotations.AfterTextChange;
 import com.googlecode.androidannotations.annotations.AfterViews;
+import com.googlecode.androidannotations.annotations.AnimationStart;
 import com.googlecode.androidannotations.annotations.App;
 import com.googlecode.androidannotations.annotations.Background;
 import com.googlecode.androidannotations.annotations.Bean;
@@ -119,6 +120,7 @@ import com.googlecode.androidannotations.model.ModelExtractor;
 import com.googlecode.androidannotations.processing.AfterInjectProcessor;
 import com.googlecode.androidannotations.processing.AfterTextChangeProcessor;
 import com.googlecode.androidannotations.processing.AfterViewsProcessor;
+import com.googlecode.androidannotations.processing.AnimationStartProcessor;
 import com.googlecode.androidannotations.processing.AppProcessor;
 import com.googlecode.androidannotations.processing.BackgroundProcessor;
 import com.googlecode.androidannotations.processing.BeanProcessor;
@@ -315,7 +317,8 @@ import com.googlecode.androidannotations.validation.rest.RestValidator;
 		OrmLiteDao.class, //
 		HttpsClient.class, //
 		FragmentArg.class, //
-		OnActivityResult.class //
+		OnActivityResult.class, //
+		AnimationStart.class //
 })
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class AndroidAnnotationProcessor extends AnnotatedAbstractProcessor {
@@ -482,6 +485,7 @@ public class AndroidAnnotationProcessor extends AnnotatedAbstractProcessor {
 		modelValidator.register(new TraceValidator(processingEnv));
 		modelValidator.register(new RunnableValidator(UiThread.class, processingEnv));
 		modelValidator.register(new RunnableValidator(Background.class, processingEnv));
+		modelValidator.register(new RunnableValidator(AnimationStart.class, processingEnv));
 		modelValidator.register(new InstanceStateValidator(processingEnv));
 		modelValidator.register(new OrmLiteDaoValidator(processingEnv, rClass));
 		modelValidator.register(new HttpsClientValidator(processingEnv, rClass));
@@ -576,6 +580,7 @@ public class AndroidAnnotationProcessor extends AnnotatedAbstractProcessor {
 		modelProcessor.register(new InstanceStateProcessor(processingEnv));
 		modelProcessor.register(new HttpsClientProcessor(rClass));
 		modelProcessor.register(new OnActivityResultProcessor(processingEnv, rClass));
+		modelProcessor.register(new AnimationStartProcessor());
 		return modelProcessor;
 	}
 
