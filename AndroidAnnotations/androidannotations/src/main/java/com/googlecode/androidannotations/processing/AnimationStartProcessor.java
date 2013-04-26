@@ -65,7 +65,7 @@ public class AnimationStartProcessor implements DecoratingElementProcessor {
 			JClass viewCompatClass = codeModel.ref("android.support.v4.view.ViewCompat");
 			delegatingMethod.body().decl(JMod.FINAL, codeModel.ref("android.view.View"), VIEW_EXPR_VAR, viewExpr);
 			delegatingMethod.body().staticInvoke(viewCompatClass, "postOnAnimation") //
-					.arg(VIEW_EXPR_VAR) //
+					.arg(JExpr.direct(VIEW_EXPR_VAR)) //
 					.arg(_new(outerRunnableClass));
 		}
 	}
@@ -81,7 +81,7 @@ public class AnimationStartProcessor implements DecoratingElementProcessor {
 		JBlock runMethodBody = runMethod.body();
 
 		JClass viewCompatClass = codeModel.ref("android.support.v4.view.ViewCompat");
-		runMethodBody.staticInvoke(viewCompatClass, "postOnAnimation").arg(VIEW_EXPR_VAR).arg(_new(inner));
+		runMethodBody.staticInvoke(viewCompatClass, "postOnAnimation").arg(JExpr.direct(VIEW_EXPR_VAR)).arg(_new(inner));
 
 		return anonymousRunnableClass;
 	}
