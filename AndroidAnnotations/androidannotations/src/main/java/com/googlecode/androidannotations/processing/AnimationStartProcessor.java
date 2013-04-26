@@ -50,13 +50,14 @@ public class AnimationStartProcessor implements DecoratingElementProcessor {
 	public void process(Element element, JCodeModel codeModel, EBeanHolder holder) throws JClassAlreadyExistsException {
 
 		ExecutableElement executableElement = (ExecutableElement) element;
-
 		JMethod delegatingMethod = helper.overrideAnnotatedMethod(executableElement, holder);
-
 		JDefinedClass innerRunnableClass = helper.createDelegatingAnonymousRunnableClass(holder, delegatingMethod);
 
-		{
-			// Execute Runnable
+		{ // Execute Runnable
+
+			AnimationStart annotation = element.getAnnotation(AnimationStart.class);
+			String viewExprStr = annotation.viewExpr();
+			JExpression viewExpr = JExpr.direct(viewExprStr);
 
 			if (holder.handler == null) {
 				JClass handlerClass = holder.classes().HANDLER;
@@ -66,9 +67,10 @@ public class AnimationStartProcessor implements DecoratingElementProcessor {
 			JDefinedClass outerRunnableClass = createOuterRunnableClass(holder, innerRunnableClass);
 
 			JClass viewCompatClass = codeModel.ref("android.support.v4.view.ViewCompat");
-			JExpression viewExpr = JExpr.direct("getWindow().getDecorView()");
-			delegatingMethod.body().staticInvoke(viewCompatClass, "postOnAnimation").arg(viewExpr).arg(_new(outerRunnableClass));
-
+			delegatingMethod.body().decl(JMod.FINAL, codeModel.ref("android.view.View"), "viewExpr", viewExpr);
+			delegatingMethod.body().staticInvoke(viewCompatClass, "postOnAnimation") //
+					.arg(JExpr.direct("viewExpr")) //
+					.arg(_new(outerRunnableClass));
 		}
 	}
 
@@ -86,8 +88,7 @@ public class AnimationStartProcessor implements DecoratingElementProcessor {
 		JBlock runMethodBody = runMethod.body();
 
 		JClass viewCompatClass = codeModel.ref("android.support.v4.view.ViewCompat");
-		JExpression viewExpr = JExpr.direct("getWindow().getDecorView()");
-		runMethodBody.staticInvoke(viewCompatClass, "postOnAnimation").arg(viewExpr).arg(_new(inner));
+		runMethodBody.staticInvoke(viewCompatClass, "postOnAnimation").arg(JExpr.direct("viewExpr")).arg(_new(inner));
 
 		return anonymousRunnableClass;
 	}

@@ -22,8 +22,11 @@ import java.lang.annotation.Target;
 
 /**
  * Should be used on method that must run in a double post.
+ * 
+ * The annotation parameter viewExpr is used to retrieve a view.
  */
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.METHOD)
 public @interface AnimationStart {
+	String viewExpr() default "this";
 }
